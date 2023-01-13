@@ -4,7 +4,7 @@ import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import uniqid from "uniqid";
 import { getMovies, writeMovies } from "../../lib/fs-tools.js";
-import { sendRegistrationEmail } from "../../lib/email-tools.js";
+// import { sendRegistrationEmail } from "../../lib/email-tools.js";
 import { checksMovieSchema, triggerBadRequest } from "./validator.js";
 import httpErrors from "http-errors";
 

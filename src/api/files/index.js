@@ -62,8 +62,8 @@ filesRouter.post(
       if (index !== -1) {
         const oldMovie = movies[index];
 
-        const poster = url;
-        const updatedMovie = { ...oldMovie, poster, updatedAt: new Date() };
+        const Poster = url;
+        const updatedMovie = { ...oldMovie, Poster, updatedAt: new Date() };
 
         movies[index] = updatedMovie;
 
