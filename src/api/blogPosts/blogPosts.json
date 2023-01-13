@@ -1,0 +1,12 @@
+[
+  {
+    "category": "Politics",
+    "title": "The President Got Fired",
+    "cover": "ARTICLE COVER (IMAGE LINK)",
+    "readTime": { "value": 2, "unit": "minute" },
+    "author": { "name": "Gadza", "avatar": "AUTHOR AVATAR LINK" },
+    "content": "HTML",
+    "createdAt": "2022-12-21T15:30:31.653Z",
+    "_id": "1ffglxbjclbxtafza"
+  }
+]

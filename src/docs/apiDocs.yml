@@ -1,0 +1,340 @@
+openapi: 3.0.1
+info:
+  title: Epic Books API
+  description: We have books and users
+  version: 1.0.1
+servers:
+  - url: http://localhost:3001
+    variables: {}
+    description: Local server
+  - url: https://epicbooks.herokuapp.com
+    variables: {}
+    description: Cloud server
+tags:
+  - name: books
+    description: Operations about books
+  - name: users
+    description: Operations about users
+paths:
+  /books:
+    get:
+      tags:
+        - books
+      summary: Returns a list of books.
+      description: Optional extended description in CommonMark or HTML.
+      parameters:
+        - in: query
+          name: category
+          schema:
+            type: string
+          description: Filter books list by category
+        - in: query
+          name: title
+          schema:
+            type: string
+          description: Filter books list by title
+      responses:
+        "200":
+          description: A list of books
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Book"
+        "500":
+          $ref: "#/components/responses/GenericServerError"
+    post:
+      tags:
+        - books
+      summary: Create a new book
+      description: Adds a new book
+      requestBody:
+        description: The body
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Book"
+      responses:
+        "201":
+          description: The ID of the newly created book
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/GenericServerError"
+  /books/{bookId}:
+    get:
+      tags:
+        - books
+      summary: Get by Id
+      description: Retrieve single Book
+      parameters:
+        - in: path
+          name: bookId
+          required: true
+          schema:
+            type: string
+          description: The ID of the Book to retrieve
+      responses:
+        "200":
+          description: The single Book
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Book"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/GenericServerError"
+    put:
+      tags:
+        - books
+      description: Update an existing Book
+      summary: Update
+      parameters:
+        - in: path
+          name: bookId
+          required: true
+          schema:
+            type: string
+          description: The ID of the Book to update
+      requestBody:
+        description: Fields to update
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Book"
+      responses:
+        "200":
+          description: A list of books
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Book"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/GenericServerError"
+    delete:
+      tags:
+        - books
+      summary: Delete
+      description: Delete a specific Book by ID
+      parameters:
+        - in: path
+          name: bookId
+          required: true
+          schema:
+            type: string
+          description: The ID of the Book to delete
+      responses:
+        "204":
+          description: Empty Response
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/GenericServerError"
+  /books/upload:
+    post:
+      tags:
+        - books
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                avatar:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Ok
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /users:
+    get:
+      tags:
+        - users
+      summary: Returns a list of users.
+      description: Optional extended description in CommonMark or HTML.
+      responses:
+        "200":
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "500":
+          $ref: "#/components/responses/GenericServerError"
+    post:
+      summary: Create
+      description: Add a new user
+      requestBody:
+        description: The object
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "201":
+          description: The ID of the newly created book
+          content:
+            application/json:
+              schema:
+                type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/GenericServerError"
+      tags:
+        - users
+  /users/{userId}:
+    summary: Specific user related endpoints
+    get:
+      summary: Get by Id
+      description: Retrieve single User's data
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+          description: The ID of the User to delete
+      operationId: ""
+      responses:
+        "200":
+          description: The User
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/GenericServerError"
+      tags:
+        - users
+    put:
+      summary: Update
+      description: Update an existing User
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+          description: The ID of the User to delete
+      requestBody:
+        description: The object
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "200":
+          description: The modified User
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/GenericServerError"
+      tags:
+        - users
+    delete:
+      summary: Delete
+      description: Delete a specific User by Id
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+          description: The ID of the User to delete
+      operationId: ""
+      responses:
+        "204":
+          description: No Content
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/GenericServerError"
+      tags:
+        - users
+components:
+  responses:
+    NotFound:
+      description: The specific resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    BadRequest:
+      description: Some problems with your request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Unauthorized:
+      description: Bearer token missing or invalid
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    GenericServerError:
+      description: A problem on the server occurred
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  schemas:
+    Book:
+      type: object
+      properties:
+        asin:
+          type: string
+        title:
+          type: string
+        img:
+          type: string
+        price:
+          type: number
+        category:
+          type: string
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          default: false
+        message:
+          type: string
