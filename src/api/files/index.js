@@ -2,6 +2,19 @@ import express from "express";
 import multer from "multer";
 import { extname } from "path";
 import json2csv from "json2csv";
+import httpErrors from "http-errors";
+// *********this is local not when hosted online******************
+import { dirname, join } from "path";
+import { fileURLToPath } from "url";
+
+// ************************************************
+
+const { NotFound, Unauthorised, BadRequest } = httpErrors;
+const moviesJSONPath = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "movies.json"
+);
+
 import {
   saveMoviesPoster,
   getMovies,
@@ -64,7 +77,7 @@ filesRouter.post(
   }
 );
 filesRouter.get("/:movieImdbID/pdf", async (req, res, next) => {
-  console.log("firing");
+  console.log("firing", req.params.movieImdbID);
   try {
     res.setHeader(
       "Content-Disposition",
@@ -74,17 +87,17 @@ filesRouter.get("/:movieImdbID/pdf", async (req, res, next) => {
     const foundMovie = movies.find(
       (movie) => movie.imdbID === req.params.movieImdbID
     );
-    console.log(foundMovie);
-    const source = getPDFReadableStream([
-      {
-        fields: ["title", "year", "type"],
-      },
-    ]);
-    const destination = res;
-    pipeline(source, destination, (err) => {
-      if (err) console.log(err);
-    });
+    if (foundMovie) {
+      const source = getPDFReadableStream(foundMovie);
+      const destination = res;
+      pipeline(source, destination, (err) => {
+        if (err) console.log(err);
+      });
+    } else {
+      next(NotFound(`Movie id ${req.params.movieImdbID} not found`));
+    }
   } catch (error) {
+    console.log(error);
     next(error);
   }
 });
@@ -107,12 +120,16 @@ filesRouter.get("/movies_csv", (req, res, next) => {
   }
 });
 
-filesRouter.get("/asyncPDF", async (req, res, next) => {
+filesRouter.get("/:movieImdbID/asyncPDF", async (req, res, next) => {
   try {
     const movies = await getMovies();
-    await asyncPDFGeneration(movies);
+    const foundMovie = movies.find(
+      (movie) => movie.imdbID === req.params.movieImdbID
+    );
+    await asyncPDFGeneration(foundMovie);
     res.send();
   } catch (error) {
+    console.log(error);
     next(error);
   }
 });

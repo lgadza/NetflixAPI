@@ -3,7 +3,7 @@ import { pipeline } from "stream";
 import { promisify } from "util"; // CORE MODULE
 import { getPDFWritableStream } from "./fs-tools.js";
 
-export const getPDFReadableStream = (booksArray) => {
+export const getPDFReadableStream = (movie) => {
   const fonts = {
     Roboto: {
       normal: "Helvetica",
@@ -12,14 +12,8 @@ export const getPDFReadableStream = (booksArray) => {
 
   const printer = new PdfPrinter(fonts);
 
-  console.log(
-    booksArray.map((book) => {
-      return [book.title, book.category, book.price];
-    })
-  );
-
   const docDefinition = {
-    content: [booksArray[0].title, booksArray[0].category],
+    content: [movie.title, movie.type],
   };
 
   const pdfReadableStream = printer.createPdfKitDocument(docDefinition);
@@ -27,9 +21,9 @@ export const getPDFReadableStream = (booksArray) => {
 
   return pdfReadableStream;
 };
-export const asyncPDFGeneration = async (postArray) => {
-  const source = getPDFReadableStream(postArray);
-  const destination = getPDFWritableStream("test.pdf");
+export const asyncPDFGeneration = async (movie) => {
+  const source = getPDFReadableStream(movie);
+  const destination = getPDFWritableStream("movie.pdf");
 
   const promiseBasedPipeline = promisify(pipeline);
 
