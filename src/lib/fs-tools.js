@@ -8,13 +8,13 @@ const dataFolderPath = join(dirname(fileURLToPath(import.meta.url)), "../data");
 const publicFolderPath = join(process.cwd(), "./public/img/movies");
 
 const moviesJSONPath = join(dataFolderPath, "../api/movies/movies.json");
-// console.log("Movies FOLDER PATH: ", moviesJSONPath);
 
 export const getMovies = () => readJSON(moviesJSONPath);
 export const writeMovies = (movieList) => writeJSON(moviesJSONPath, movieList);
 
-export const saveMoviesAvatars = (fileName, contentAsABuffer) =>
+export const saveMoviesPoster = (fileName, contentAsABuffer) =>
   writeFile(join(publicFolderPath, fileName), contentAsABuffer);
-export const getPostJSONReadableStream = () => createReadStream(moviesJSONPath);
+export const getMovieJSONReadableStream = () =>
+  createReadStream(moviesJSONPath);
 export const getPDFWritableStream = (filename) =>
   createReadStream(join(dataFolderPath, filename));

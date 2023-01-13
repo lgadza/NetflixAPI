@@ -38,8 +38,8 @@ const corsOpts = {
 };
 server.use(cors(corsOpts));
 server.use(express.static(publicFolderPath));
-server.use("/movies", filesRouter);
-server.use("/movies", moviesRouter);
+server.use("/medias", filesRouter);
+server.use("/medias", moviesRouter);
 
 server.use(badRequestHandler);
 server.use(notFoundHandler);
