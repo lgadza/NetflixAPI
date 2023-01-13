@@ -7,11 +7,8 @@ const { readJSON, writeJSON, writeFile, createReadStream } = fs;
 const dataFolderPath = join(dirname(fileURLToPath(import.meta.url)), "../data");
 const publicFolderPath = join(process.cwd(), "./public/img/movies");
 
-console.log("ROOT OF THE PROJECT:", process.cwd());
-console.log("PUBLIC FOLDER:", publicFolderPath);
-
-const moviesJSONPath = join(dataFolderPath, "movies.json");
-console.log("autors FOLDER PATH: ", moviesJSONPath);
+const moviesJSONPath = join(dataFolderPath, "../api/movies/movies.json");
+// console.log("Movies FOLDER PATH: ", moviesJSONPath);
 
 export const getMovies = () => readJSON(moviesJSONPath);
 export const writeMovies = (movieList) => writeJSON(moviesJSONPath, movieList);

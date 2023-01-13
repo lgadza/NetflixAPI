@@ -3,7 +3,7 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import uniqid from "uniqid";
-// import { getMovies } from "../../lib/fs-tools";
+import { getMovies, writeMovies } from "../../lib/fs-tools.js";
 import { sendRegistrationEmail } from "../../lib/email-tools.js";
 import { checksMovieSchema, triggerBadRequest } from "./validator.js";
 
@@ -11,57 +11,90 @@ const moviesJSONPath = join(
   dirname(fileURLToPath(import.meta.url)),
   "movies.json"
 );
-console.log("New****************", moviesJSONPath);
+console.log("New****************", await getMovies());
 
 const moviesRouter = express.Router();
 
-moviesRouter.post("/", checksMovieSchema, triggerBadRequest, (req, res) => {
-  console.log(req.body);
-  const newMovie = {
-    ...req.body,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    id: uniqid(),
-    // avatar: `https://ui-avatars.com/api/?name=${req.body.name}`,
-  };
-  const moviesList = JSON.parse(fs.readFileSync(moviesJSONPath));
-  moviesList.push(newMovie);
-  fs.writeFileSync(moviesJSONPath, JSON.stringify(moviesList));
-  res.status(201).send({ id: newMovie.id });
+moviesRouter.post(
+  "/",
+  checksMovieSchema,
+  triggerBadRequest,
+  async (req, res, next) => {
+    try {
+      const newMovie = {
+        ...req.body,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        imdbID: uniqid(),
+      };
+      console.log(req.body);
+      // const moviesList = JSON.parse(fs.readFileSync(moviesJSONPath));
+      const moviesList = await getMovies();
+      moviesList.push(newMovie);
+      // fs.writeFileSync(moviesJSONPath, JSON.stringify(moviesList));
+      await writeMovies(moviesList);
+      res.status(201).send({ imdbID: newMovie.imdbID });
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  }
+);
+moviesRouter.get("/", (req, res, next) => {
+  try {
+    const moviesList = fs.readFileSync(moviesJSONPath);
+    console.log("movielist:", moviesList);
+    const movies = JSON.parse(moviesList);
+    res.send(movies);
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
 });
-moviesRouter.get("/", (req, res) => {
-  const moviesList = fs.readFileSync(moviesJSONPath);
-  console.log("movielist:", moviesList);
-  const movies = JSON.parse(moviesList);
-  res.send(movies);
+moviesRouter.get("/:movieImdbID", (req, res, next) => {
+  try {
+    const movieImdbID = req.params.movieImdbID;
+    const movielist = JSON.parse(fs.readFileSync(moviesJSONPath));
+    const foundMovie = movielist.find((movie) => movie.imdbID === movieImdbID);
+    res.send(foundMovie);
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
 });
-moviesRouter.get("/:movieId", (req, res) => {
-  const movieId = req.params.movieId;
-  const movielist = JSON.parse(fs.readFileSync(moviesJSONPath));
-  const foundMovie = movielist.find((movie) => movie.id === movieId);
-  res.send(foundMovie);
+moviesRouter.put("/:movieImdbID", (req, res, next) => {
+  try {
+    console.log(req.body);
+    const movieList = JSON.parse(fs.readFileSync(moviesJSONPath));
+    const index = movieList.findIndex(
+      (movie) => movie.imdbID === req.params.movieImdbID
+    );
+    const oldMovieData = movieList[index];
+    const updatedMovie = {
+      ...oldMovieData,
+      ...req.body,
+      updatedAt: new Date(),
+    };
+    movieList[index] = updatedMovie;
+    fs.writeFileSync(moviesJSONPath, JSON.stringify(movieList));
+    res.send(updatedMovie);
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
 });
-moviesRouter.put("/:movieId", (req, res) => {
-  console.log(req.body);
-  const movieList = JSON.parse(fs.readFileSync(moviesJSONPath));
-  const index = movieList.findIndex((movie) => movie.id === req.params.movieId);
-  const oldMovieData = movieList[index];
-  const updatedMovie = {
-    ...oldMovieData,
-    ...req.body,
-    updatedAt: new Date(),
-  };
-  movieList[index] = updatedMovie;
-  fs.writeFileSync(moviesJSONPath, JSON.stringify(movieList));
-  res.send(updatedMovie);
-});
-moviesRouter.delete("/:movieId", (req, res) => {
-  const movieList = JSON.parse(fs.readFileSync(moviesJSONPath));
-  const remainMovies = movieList.filter(
-    (movie) => movie.id !== req.params.movieId
-  );
-  fs.writeFileSync(moviesJSONPath, JSON.stringify(remainMovies));
-  res.status(204).send();
+moviesRouter.delete("/:movieImdbID", (req, res, next) => {
+  try {
+    const movieList = JSON.parse(fs.readFileSync(moviesJSONPath));
+    const remainMovies = movieList.filter(
+      (movie) => movie.imdbID !== req.params.movieImdbID
+    );
+    fs.writeFileSync(moviesJSONPath, JSON.stringify(remainMovies));
+    res.status(204).send();
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
 });
 
 moviesRouter.post("/register", async (req, res, next) => {

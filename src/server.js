@@ -1,6 +1,5 @@
 import express from "express";
 import { join } from "path";
-// import { moviesRouter } from "./api/movies/index.js";
 import moviesRouter from "./api/movies/index.js";
 import listEndpoints from "express-list-endpoints";
 import cors from "cors";
@@ -21,13 +20,7 @@ const port = process.env.PORT || 3001;
 const publicFolderPath = join(process.cwd(), "./public");
 server.use(express.json());
 server.use(cors());
-const loggerMiddleware = (req, res, next) => {
-  console.log(
-    `Request method ${req.method} -- url ${req.url} -- ${new Date()}`
-  );
-  req.user = "Movie";
-  next();
-};
+
 const whitelist = [process.env.FE_DEV_URL, process.env.FE_PROD_URL];
 const yamlFile = yaml.load(join(process.cwd(), "./src/docs/apiDocs.yml"));
 
@@ -47,7 +40,6 @@ server.use(cors(corsOpts));
 server.use(express.static(publicFolderPath));
 server.use("/movies", filesRouter);
 server.use("/movies", moviesRouter);
-// server.use("/blogPosts", blogPostsRouter);
 
 server.use(badRequestHandler);
 server.use(notFoundHandler);

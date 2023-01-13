@@ -59,6 +59,7 @@ filesRouter.post(
 
       res.send("File uploaded");
     } catch (error) {
+      console.log(error);
       next(error);
     }
   }
